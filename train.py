@@ -1,5 +1,6 @@
 import os
 import tensorflow as tf
+from tensorflow.core.protobuf import saver_pb2
 import driving_data
 import model
 
@@ -20,7 +21,7 @@ tf.scalar_summary("loss", loss)
 # merge all summaries into a single op
 merged_summary_op = tf.merge_all_summaries()
 
-saver = tf.train.Saver()
+saver = tf.train.Saver(write_version = saver_pb2.SaverDef.V1)
 
 # op to write logs to Tensorboard
 logs_path = './logs'
@@ -41,7 +42,7 @@ for epoch in range(epochs):
 
     # write logs at every iteration
     summary = merged_summary_op.eval(feed_dict={model.x:xs, model.y_: ys, model.keep_prob: 1.0})
-    summary_writer.add_summary(summary, epoch * batch_size + i)
+    summary_writer.add_summary(summary, epoch * driving_data.num_images/batch_size + i)
 
     if i % batch_size == 0:
       if not os.path.exists(LOGDIR):
